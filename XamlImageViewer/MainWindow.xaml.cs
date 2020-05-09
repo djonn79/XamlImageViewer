@@ -25,54 +25,78 @@ namespace XamlImageViewer
     /// </summary>
     public partial class MainWindow : Window
     {
+        public bool IsWhiteTheme { get; set; } = true;
+
         public MainWindow()
         {
             InitializeComponent();
         }
         #region Select Directory
-        private void LoadingXamlFiles(string folder)
+        private async void LoadingXamlFiles(string folder)
         {
             xamlFilesList.Items.Clear();
-            var files = new List<FileInfo>();
+            var progress = new Progress<double>();
+            progress.ProgressChanged += (s, a) =>
+            {
+                progressBar.Value = a;
+            };
             if (Directory.Exists(folder))
             {
-                files = Directory.GetFiles(folder, "*.xaml")?.Select(x => new FileInfo(x))?.ToList();
+                LoadFilesAsync(progress, folder);
             }
-            if (files.Count > 0)
+        }
+
+        private async void LoadFilesAsync(IProgress<double> progress, string folder)
+        {
+            await Task.Run(() =>
             {
-                foreach (var file in files)
+                var files = new List<FileInfo>();
+                progress.Report(5);
+                files = Directory.GetFiles(folder, "*.xaml", SearchOption.AllDirectories)?.Select(x => new FileInfo(x))?.ToList();
+                progress.Report(20);
+                if (files.Count > 0)
                 {
-                    using (var reader = new StreamReader(file.FullName))
+                    double step = 80 / files.Count;
+                    double counter = 0;
+                    foreach (var file in files)
                     {
-                        Viewbox vb = new Viewbox();
-                        var ui = XamlReader.Load(reader.BaseStream);
-                        vb.Child = ui as UIElement;
+                        using (var reader = new StreamReader(file.FullName))
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                Viewbox vb = new Viewbox() { Height = 16, Width = 16 };
+                                var ui = XamlReader.Load(reader.BaseStream);
+                                vb.Child = ui as UIElement;
 
-                        StackPanel sp = new StackPanel() { Orientation = System.Windows.Controls.Orientation.Horizontal };
-                        sp.Children.Add(vb);
-                        sp.Children.Add(new TextBlock() { Text = file.Name , Margin = new Thickness(5,0,0,0) });
+                                StackPanel sp = new StackPanel() { Orientation = System.Windows.Controls.Orientation.Horizontal };
+                                sp.Children.Add(vb);
+                                sp.Children.Add(new TextBlock() { Text = file.Name, Margin = new Thickness(5, 0, 0, 0) });
 
-                        var item = new ListBoxItem() { Content = sp, Tag = file };
-                        item.MouseDoubleClick += (s, e) => { if (s is ListBoxItem i) { ReadImage(i.Tag as FileInfo); }; };
-                        xamlFilesList.Items.Add(item);
-                        reader.Close();
+                                var item = new ListBoxItem() { Content = sp, Tag = file };
+                                item.MouseDoubleClick += (s, e) => { if (s is ListBoxItem i) { ReadImage(i.Tag as FileInfo); }; };
+                                xamlFilesList.Items.Add(item);
+                                reader.Close();
+                            });
+                        }
+                        counter += step;
+                        progress.Report(counter);
                     }
-
+                    progress.Report(0);
                 }
             }
+            );
         }
 
         private void OpenFolder(object sender, RoutedEventArgs e)
         {
             FolderBrowserDialog fbd = new FolderBrowserDialog();
-            
+
             if (fbd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 textBlockFolder.Text = fbd.SelectedPath;
                 LoadingXamlFiles(textBlockFolder.Text);
             }
         }
-
 
         #endregion
 
@@ -93,6 +117,25 @@ namespace XamlImageViewer
                 if (item.Tag is FileInfo fi)
                     ReadImage(fi);
             }
+        }
+
+        private void CopyResource(object sender, RoutedEventArgs e)
+        {
+            if (xamlFilesList.SelectedItem is ListBoxItem item)
+            {
+                if (item.Tag is FileInfo fi)
+                {
+                    var text = File.ReadAllText(fi.FullName);
+                    text = text.Replace("xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"", $"x:Key=\"{fi.Name.Replace(fi.Extension, "")}\"");
+                    System.Windows.Clipboard.SetText(text);
+                }
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            IsWhiteTheme = !IsWhiteTheme;
+            gridBackground.Background = (IsWhiteTheme) ? Brushes.White : Brushes.DarkGray;
         }
     }
 }
