@@ -126,6 +126,7 @@ namespace XamlImageViewer
                 if (item.Tag is FileInfo fi)
                 {
                     var text = File.ReadAllText(fi.FullName);
+
                     text = text.Replace("xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"", $"x:Key=\"{fi.Name.Replace(fi.Extension, "")}\"");
                     System.Windows.Clipboard.SetText(text);
                 }
