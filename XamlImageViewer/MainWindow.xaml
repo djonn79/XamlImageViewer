@@ -18,15 +18,19 @@
             <RowDefinition Height="269*"/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="1" Name="gridBackground">
-            <Viewbox Name="imageViewBox" Height="{Binding ElementName=sliderScale, Path=Value}" Width="{Binding ElementName=sliderScale, Path=Value}"/>
+        <Grid Grid.Row="1" Background="{Binding Theme}">
+            <Viewbox  Height="{Binding ElementName=sliderScale, Path=Value}" Width="{Binding ElementName=sliderScale, Path=Value}">
+              <ContentControl Content ="{Binding MainImage}">
+                
+              </ContentControl>     
+            </Viewbox>
         </Grid>
         <GridSplitter Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" ResizeDirection="Columns" Cursor="SizeWE" ></GridSplitter>
         <Grid  Grid.Column="2" Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <ListBox Grid.Row="0" x:Name="xamlFilesList" SelectionChanged="xamlFilesList_SelectionChanged"/>
+            <ListBox Grid.Row="0" x:Name="xamlFilesList" />
         </Grid>
         <Border Grid.ColumnSpan="3" Grid.Row="0" BorderBrush="Black" BorderThickness="1">
             <Grid Grid.ColumnSpan="2">
@@ -34,8 +38,8 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="OpenFolder" Grid.Column="1" HorizontalAlignment="Left" Width="30" Content="..."/>
-                <TextBlock x:Name="textBlockFolder" Grid.Row="0" />
+                <Button  Grid.Column="1" HorizontalAlignment="Left" Width="30" Content="..." Command="{Binding OpenFolder}"   />
+                <TextBlock Grid.Row="0"  Text="{Binding SelectedFolder}"/>
             </Grid>
         </Border>
         <Grid HorizontalAlignment="Stretch" Grid.Row="2" VerticalAlignment="Stretch" Grid.ColumnSpan="2">
@@ -57,7 +61,7 @@
                     Minimum="10" 
                     Maximum="{Binding ElementName=xamlFilesList, Path=ActualHeight}" Grid.Column="4" Height="18"/>
             <ProgressBar HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" Background="{x:Null}" Name="progressBar" Minimum="0" Maximum="100" Value="0"/>
-            <Button Grid.Column="2" Width="20" Height="20" Click="Button_Click">
+            <Button Grid.Column="2" Width="20" Height="20" Command="{Binding ChangeTheme}">
                 <Viewbox Width="16" Height="16">
                     <Rectangle Width="16" Height="16">
                         <Rectangle.Fill>
@@ -80,7 +84,7 @@
         </Grid>
         <Button Content="Копировать ресурс" Margin="2,5" Grid.Row="2" Grid.Column="2" 
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch" Click="CopyResource"
+                VerticalAlignment="Stretch" 
                 />
     </Grid>
 </Window>
