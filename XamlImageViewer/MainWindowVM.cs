@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace XamlImageViewer
         private bool IsWhiteTheme { get; set; } = true;
         public string SelectedFolder { get; set; }
         public Viewbox MainImage { get; set; }
-        public List<ListBoxItem> ImagesList { get { return new List<ListBoxItem>(); } }
+        public List<ListBoxItem> ImagesList { get; set; } = new List<ListBoxItem>();
         public Brush Theme => (IsWhiteTheme) ? Brushes.White : Brushes.DarkGray; 
         private RelayCommand changeTheme;
         public RelayCommand ChangeTheme => changeTheme ?? (
