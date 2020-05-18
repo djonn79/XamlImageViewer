@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -199,5 +199,4 @@ namespace XamlImageViewer
         //    IsWhiteTheme = !IsWhiteTheme;
         //    gridBackground.Background = (IsWhiteTheme) ? Brushes.White : Brushes.DarkGray;
         //}
-    }
 }
